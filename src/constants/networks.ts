@@ -155,3 +155,19 @@ export const CHAINS_SUPPORT_NEW_POOL_FARM_API: ChainId[] = [
   // ChainId.OASIS,
   ChainId.OPTIMISM,
 ]
+
+export const SUPPORTED_NETWORKS_FOR_MY_EARNINGS = [
+  ChainId.MAINNET,
+  ChainId.ETHW,
+  ChainId.MATIC,
+  ChainId.BSCMAINNET,
+  ChainId.AVAXMAINNET,
+  ChainId.FANTOM,
+  ChainId.CRONOS,
+  ChainId.ARBITRUM,
+  ChainId.BTTC,
+  ChainId.VELAS,
+  ChainId.AURORA,
+  ChainId.OASIS,
+  ChainId.OPTIMISM,
+]
