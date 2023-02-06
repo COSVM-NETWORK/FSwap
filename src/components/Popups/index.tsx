@@ -118,7 +118,7 @@ export default function Popups() {
           {totalTopRightPopup >= MAX_NOTIFICATION && <Overlay />}
         </FixedPopupColumn>
       )}
-      {bottomLeftPopups.length > 0 && <SnippetPopup announcements={bottomLeftPopups} />}
+      {bottomLeftPopups.length === 0 && <SnippetPopup announcements={[1, 2, 3]} />}
       {centerPopup && <CenterPopup />}
     </>
   )

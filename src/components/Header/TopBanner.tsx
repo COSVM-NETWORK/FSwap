@@ -1,25 +1,29 @@
 // import { rgba } from 'polished'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, ReactNode, useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Announcement from 'components/Icons/Announcement'
 import { useActiveWeb3React } from 'hooks'
-import { ExternalLink } from 'theme'
+import useMarquee from 'hooks/useMarquee'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 const BannerWrapper = styled.div`
   width: 100%;
   padding: 10px 12px 10px 20px;
-  background: ${({ theme }) => theme.warning};
+  background: ${({ theme }) => theme.apr};
   display: flex;
   align-items: center;
   justify-content: space-between;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     align-items: flex-start;
+    flex-direction: column;
+    padding: 12px;
+    gap: 12px;
   `}
 `
 
@@ -36,27 +40,55 @@ const Content = styled.div`
   justify-content: center;
   border-radius: 4px;
   gap: 8px;
-
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 14px;
-    align-items: flex-start;
     flex: 1;
+    width:100%;
   `}
 `
 
-type TextNode =
-  | string
-  | {
-      text: string
-      link: string
-    }
+const marquee = () => keyframes`
+  0% { left: 0; }
+  100% { left: -100%; }
+`
+const TextWrapper = styled.div`
+  margin-left: 4px;
+  margin-right: 1rem;
+  color: ${({ theme }) => theme.text};
+  overflow: hidden;
+  ${({ theme }) => theme.mediaWidth.upToSmall`${css`
+    max-width: 100%;
+    flex: 1;
+    height: 20px;
+    position: relative;
+    margin: 0;
+  `}
+  `}
+`
+const TextContent = styled.div`
+  line-height: 20px;
+  color: ${({ theme }) => theme.text};
+  font-size: 14px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    white-space: nowrap;
+    animation: ${marquee} 5s linear infinite;
+    position: absolute;
+  `}
+`
+const CtaButton = styled(ButtonOutlined)`
+  width: 140px;
+  height: 36px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
+`
 
 type Banner = {
   key: string
   start: string
   end: string
   onlyChains: ChainId[]
-  text: TextNode[]
+  text: ReactNode
 }
 
 const banners: Banner[] = [
@@ -65,19 +97,13 @@ const banners: Banner[] = [
     start: 'Thu, 7 Oct 2022 00:00:00 GMT',
     end: 'Thu, 7 Oct 2022 00:00:00 GMT',
     onlyChains: [ChainId.BSCMAINNET],
-    text: [
-      'BNB Chain is currently under maintenance and has been paused temporarily. For further info please refer to ',
-      {
-        text: 'this',
-        link: 'https://twitter.com/BNBCHAIN/status/1578148078636650496',
-      },
-      ' official announcement from the Binance Team.',
-    ],
+    text: 'BNB Chain is currently under maintenance and has been paused temporarily. For further info please refer to ',
   },
 ]
 
 function TopBanner() {
-  const below768 = useMedia('(max-width: 768px)')
+  // todo check this show or not => change posiion banner top right
+  const below768 = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [showBanner, setShowBanner] = useLocalStorage('banners', {})
   const { chainId } = useActiveWeb3React()
@@ -89,50 +115,23 @@ function TopBanner() {
   }, [showBanner])
 
   const renderBanner = (banner: Banner) => {
-    // if (show[banner.key] === false || (chainId && !banner.onlyChains.includes(chainId))) {
-    //   return null
-    // }
-
     // const now = new Date()
     // if (now < new Date(banner.start) || now > new Date(banner.end)) {
     //   return null
     // }
-
+    const closeBtn = <StyledClose size={24} onClick={() => setShowBanner({ ...showBanner, [banner.key]: false })} />
     return (
       <BannerWrapper key={banner.key}>
         {!below768 && <div />}
         <Content>
-          <Announcement />
-          <Text
-            marginLeft="4px"
-            marginRight="1rem"
-            lineHeight="20px"
-            color="#fff"
-            fontSize="14px"
-            flex={1}
-            style={{ whiteSpace: 'break-spaces' }}
-          >
-            {banner.text.map((textNode, i) => (
-              <Fragment key={i}>
-                {typeof textNode === 'string' ? (
-                  textNode
-                ) : (
-                  <ExternalLink
-                    key={textNode.text + '-' + textNode.link}
-                    href={textNode.link}
-                    style={{ color: '#fff', fontWeight: 500, textDecoration: 'underline' }}
-                  >
-                    {textNode.text}
-                  </ExternalLink>
-                )}
-              </Fragment>
-            ))}
-          </Text>
+          {!below768 && <Announcement />}
+          <TextWrapper>
+            <TextContent>{banner.text}</TextContent>
+          </TextWrapper>
+          {below768 && closeBtn}
         </Content>
-        <ButtonPrimary width="140px" height="36px">
-          CTA
-        </ButtonPrimary>
-        <StyledClose size={24} onClick={() => setShowBanner({ ...showBanner, [banner.key]: false })} />
+        <CtaButton>CTA</CtaButton>
+        {!below768 && closeBtn}
       </BannerWrapper>
     )
   }

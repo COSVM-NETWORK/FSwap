@@ -27,6 +27,17 @@ const ItemWrapper = styled.div<{ expand: boolean }>`
       height: unset;
       padding: 20px 20px 12px 20px;
     `};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+     height: unset;
+  `}
+`
+
+const ContentColumn = styled(AutoColumn)<{ expand: boolean }>`
+  padding: ${({ expand }) => (expand ? '14px' : '14px 40px 14px 14px')};
+  gap: 14px;
+  ${({ theme, expand }) => theme.mediaWidth.upToSmall`
+    padding: ${expand ? '14px' : '36px 40px 14px 14px'};
+  `}
 `
 
 const Image = styled.img<{ expand: boolean }>`
@@ -106,14 +117,14 @@ function SnippetPopupItem({
   return (
     <ItemWrapper expand={expand}>
       <Image expand={expand} src="https://media.vneconomy.vn/images/upload/2022/07/11/gettyimages-1207206237.jpg" />
-      <AutoColumn gap="14px" style={{ padding: expand ? '14px' : '14px 40px 14px 14px' }}>
+      <ContentColumn expand={expand}>
         <Title expand={expand}>
-          mẹ bã sợ bị cô dít bã làm 1 đống nước cam, gừng các thứ kêu cạ nhà ún hơ hơ mẹ bã sợ bị cô dít bã làm 1 đống
-          nước cam, gừng các thứ kêu cạ nhà ún hơ hơ
+          Đường tình anh thua nhưng đường đua (trên LinkedIn) anh thắng, hơn cả KOLs luôn đúng ko các bác Đường tình anh
+          thua nhưng đường đua (trên LinkedIn) anh thắng, hơn cả KOLs luôn đúng ko các bác
         </Title>
         <Desc expand={expand}>
-          mẹ bã sợ bị cô dít bã làm 1 đống nước cam, gừng các thứ kêu cạ nhà ún hơ hơmẹ bã sợ bị cô dít bã làm 1 đống
-          nước cam, gừng các thứ kêu cạ nhà ún hơ hơ
+          Đường tình anh thua nhưng đường đua (trên LinkedIn) anh thắng, hơn cả KOLs luôn đúng ko các bác Đường tình anh
+          thua nhưng đường đua (trên LinkedIn) anh thắng, hơn cả KOLs luôn đúng ko các bác
         </Desc>
         <Flex alignItems="center" style={{ position: 'relative', justifyContent: expand ? 'center' : 'space-between' }}>
           <ButtonPrimary width="140px" height="36px">
@@ -124,7 +135,7 @@ function SnippetPopupItem({
             {expand ? <Trans>See Less</Trans> : <Trans>See More</Trans>}
           </SeeMore>
         </Flex>
-      </AutoColumn>
+      </ContentColumn>
     </ItemWrapper>
   )
 }
@@ -169,7 +180,7 @@ const Wrapper = styled.div<{ expand: boolean }>`
     }
   }
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     ${css`
       left: 0;
       right: 0;
