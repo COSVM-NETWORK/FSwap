@@ -88,9 +88,9 @@ export default createReducer(initialState, builder =>
         },
       ])
     })
-    .addCase(removePopup, (state, { payload: { key, removeAll } }) => {
+    .addCase(removePopup, (state, { payload: { key, typesRemove = [] } }) => {
       state.popupList.forEach(p => {
-        if (p.key === key || removeAll) {
+        if (p.key === key || typesRemove.includes(p.popupType)) {
           p.show = false
         }
       })

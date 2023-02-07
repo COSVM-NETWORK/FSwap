@@ -1,22 +1,21 @@
 import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import CenterPopup from 'components/Popups/CenterPopup'
 import SnippetPopup from 'components/Popups/SnippetPopup'
+import { isPopupExpired } from 'components/Popups/helper'
 import { Z_INDEXS } from 'constants/styles'
-import { PopupType } from 'state/application/actions'
+import { PopupContentSimple, PopupContentTxn, PopupType } from 'state/application/actions'
 import {
   NotificationType,
   useActivePopups,
+  useAddPopup,
   useNotify,
   useRemoveAllPopup,
   useToggleNotificationCenter,
 } from 'state/application/hooks'
-import { PopupItemType } from 'state/application/reducer'
-import { MEDIA_WIDTHS } from 'theme'
 
 import PopupItem from './PopupItem'
 
@@ -69,22 +68,61 @@ const Overlay = styled.div`
 
 const MAX_NOTIFICATION = 4
 
+export type NotificationCTA = { id: string; title: string; url: string; color: 'warning' | 'success' | 'error' }
+export type NotificationPayload = {
+  templateBody: {
+    title: string
+    content: string
+    actions: NotificationCTA[]
+    imageURL: string
+    popupType: 'central' | 'top_bar'
+  }
+  expiredAt: number
+  createdAt: number
+  startTime: number
+}
+
 export default function Popups() {
-  const topRightPopups = useActivePopups()
-  const clearAll = useRemoveAllPopup()
+  const popups = useActivePopups()
+  const topRightPopups = popups.filter(e => e.popupType === PopupType.SIMPLE || e.popupType === PopupType.TRANSACTION) // todo con cai top right LO,...
+
   const toggleNotificationCenter = useToggleNotificationCenter()
   const notify = useNotify()
+  const addPopup = useAddPopup()
 
-  const [bottomLeftPopups, setBottomLeftPopups] = useState<PopupItemType[]>([])
-  const [centerPopup, setCenterPopup] = useState<PopupItemType>()
+  const [bottomLeftPopups, setBottomLeftPopups] = useState<NotificationPayload[]>([])
+  const [centerPopup, setCenterPopup] = useState<NotificationPayload>()
+
+  const clearAllTopRightPopup = useRemoveAllPopup()
+  const clearAllSnippetPopup = () => setBottomLeftPopups([])
+  const clearAllCenterPopup = () => setCenterPopup(undefined)
 
   useEffect(() => {
-    notify({ title: 'test', type: NotificationType.WARNING }, null)
+    notify({ title: 'test', type: NotificationType.WARNING }, null) // todo filter expired
+
+    const test = (): NotificationPayload => ({
+      templateBody: {
+        title: 'string',
+        content: 'string',
+        actions: [
+          { id: 'test', title: 'string', url: 'string', color: 'success' },
+          // { id: 'test2', title: 'string', url: 'string', color: 'success' },
+        ],
+        imageURL: 'string',
+        popupType: 'central',
+      },
+      expiredAt: Date.now() + 50000000,
+      createdAt: Date.now() - 50000000,
+      startTime: Date.now() - 50000000,
+    })
+
+    setBottomLeftPopups([test(), test()].filter(e => !isPopupExpired(e)))
+    setCenterPopup(test()) // todo filter expired
+
+    addPopup(test(), PopupType.TOP_BAR, test().templateBody.title + Math.random(), null) // todo filter expired
   }, [])
 
   // todo check mobile, dark mode, check noti thuong hay noti kia
-
-  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const totalTopRightPopup = topRightPopups.length
   // todo xem may thong baso chung chung slice roi sao nua ???
@@ -99,7 +137,7 @@ export default function Popups() {
               </ActionButton>
             )}
             {totalTopRightPopup > 1 && (
-              <ActionButton onClick={clearAll}>
+              <ActionButton onClick={clearAllTopRightPopup}>
                 <Trans>Clear All</Trans>
               </ActionButton>
             )}
@@ -109,7 +147,7 @@ export default function Popups() {
             <PopupItem
               key={item.key}
               popupType={item.popupType}
-              content={item.content}
+              content={item.content as PopupContentTxn | PopupContentSimple}
               popKey={item.key}
               removeAfterMs={item.removeAfterMs}
             />
@@ -118,8 +156,8 @@ export default function Popups() {
           {totalTopRightPopup >= MAX_NOTIFICATION && <Overlay />}
         </FixedPopupColumn>
       )}
-      {bottomLeftPopups.length === 0 && <SnippetPopup announcements={[1, 2, 3]} />}
-      {centerPopup && <CenterPopup />}
+      {bottomLeftPopups.length > 0 && <SnippetPopup data={bottomLeftPopups} clearAll={clearAllSnippetPopup} />}
+      {centerPopup && <CenterPopup data={centerPopup} clearAll={clearAllCenterPopup} />}
     </>
   )
 }

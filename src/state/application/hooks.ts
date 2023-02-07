@@ -161,7 +161,7 @@ export function useToggleSwitchEthereumModal(): () => void {
 }
 
 // returns a function that allows adding a popup
-function useAddPopup(): (
+export function useAddPopup(): (
   content: PopupContent,
   popupType: PopupType,
   key?: string,
@@ -205,19 +205,20 @@ export const useTransactionNotify = () => {
 }
 
 // returns a function that allows removing a popup via its key
-export function useRemovePopup(): (key: string, removeAll?: boolean) => void {
+export function useRemovePopup(): (key: string, typesRemove?: PopupType[]) => void {
   const dispatch = useDispatch()
   return useCallback(
-    (key: string, removeAll = false) => {
-      dispatch(removePopup({ key, removeAll }))
+    (key: string, typesRemove: PopupType[] = []) => {
+      dispatch(removePopup({ key, typesRemove }))
     },
     [dispatch],
   )
 }
 
-export function useRemoveAllPopup() {
+export function useRemoveAllPopup(typesRemove = [PopupType.SIMPLE, PopupType.TRANSACTION]) {
+  // todo danh check loop typesRemove
   const remove = useRemovePopup()
-  return useCallback(() => remove('', true), [remove])
+  return useCallback(() => remove('', typesRemove), [remove, typesRemove])
 }
 
 // get the list of active popups

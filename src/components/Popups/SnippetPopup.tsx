@@ -7,10 +7,12 @@ import styled, { css } from 'styled-components'
 import { Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 
-import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
+import { NotificationPayload } from 'components/Popups'
+import CtaButton from 'components/Popups/CtaButton'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 
 const IMAGE_HEIGHT = '140px'
 const PADDING_MOBILE = '16px'
@@ -35,6 +37,7 @@ const ItemWrapper = styled.div<{ expand: boolean }>`
 const ContentColumn = styled(AutoColumn)<{ expand: boolean }>`
   padding: ${({ expand }) => (expand ? '14px' : '14px 40px 14px 14px')};
   gap: 14px;
+  flex: 1;
   ${({ theme, expand }) => theme.mediaWidth.upToSmall`
     padding: ${expand ? '14px' : '36px 40px 14px 14px'};
   `}
@@ -101,15 +104,27 @@ const SeeMore = styled.div<{ expand: boolean }>`
     `};
 `
 
+const StyledCtaButton = styled(CtaButton)`
+  width: 140px;
+  height: 36px;
+`
+
+const StyledLink = styled(ExternalLink)`
+  &:hover {
+    text-decoration: none;
+  }
+`
+
 function SnippetPopupItem({
   data,
   expand,
   setExpand,
 }: {
   expand: boolean
-  data: any
+  data: NotificationPayload
   setExpand: (v: boolean) => void
 }) {
+  const { actions = [], title, content } = data.templateBody ?? {}
   const toggle = () => {
     setExpand(!expand)
   }
@@ -118,18 +133,15 @@ function SnippetPopupItem({
     <ItemWrapper expand={expand}>
       <Image expand={expand} src="https://media.vneconomy.vn/images/upload/2022/07/11/gettyimages-1207206237.jpg" />
       <ContentColumn expand={expand}>
-        <Title expand={expand}>
-          Đường tình anh thua nhưng đường đua (trên LinkedIn) anh thắng, hơn cả KOLs luôn đúng ko các bác Đường tình anh
-          thua nhưng đường đua (trên LinkedIn) anh thắng, hơn cả KOLs luôn đúng ko các bác
-        </Title>
-        <Desc expand={expand}>
-          Đường tình anh thua nhưng đường đua (trên LinkedIn) anh thắng, hơn cả KOLs luôn đúng ko các bác Đường tình anh
-          thua nhưng đường đua (trên LinkedIn) anh thắng, hơn cả KOLs luôn đúng ko các bác
-        </Desc>
-        <Flex alignItems="center" style={{ position: 'relative', justifyContent: expand ? 'center' : 'space-between' }}>
-          <ButtonPrimary width="140px" height="36px">
-            Enter Now
-          </ButtonPrimary>
+        <Title expand={expand}>{title}</Title>
+        <Desc expand={expand}>{content}</Desc>
+        <Flex
+          alignItems="flex-end"
+          style={{ position: 'relative', justifyContent: expand ? 'center' : 'space-between' }}
+        >
+          <StyledLink href={actions[0]?.url}>
+            <StyledCtaButton data={actions[0]} />
+          </StyledLink>
           <SeeMore onClick={toggle} expand={expand}>
             <ChevronsUp size={16} />
             {expand ? <Trans>See Less</Trans> : <Trans>See More</Trans>}
@@ -203,24 +215,20 @@ const Close = styled(X)`
     right: calc(12px + ${PADDING_MOBILE});
   `}
 `
-export default function SnippetPopup({ announcements }: { announcements: any }) {
+export default function SnippetPopup({ data, clearAll }: { data: NotificationPayload[]; clearAll: () => void }) {
   const theme = useTheme()
   const [expand, setExpand] = useState(false)
-
-  const closeAll = () => {
-    //
-  }
 
   return (
     <Wrapper expand={expand}>
       <Swiper slidesPerView={1} navigation={true} pagination={true} loop={true} modules={[Navigation, Pagination]}>
-        {announcements.map((banner: any, index: number) => (
+        {data.map((banner: any, index: number) => (
           <SwiperSlide key={index}>
             <SnippetPopupItem expand={expand} setExpand={setExpand} data={banner} key={index} />
           </SwiperSlide>
         ))}
       </Swiper>
-      <Close size={18} color={theme.subText} onClick={closeAll} />
+      <Close size={18} color={theme.subText} onClick={clearAll} />
     </Wrapper>
   )
 }
