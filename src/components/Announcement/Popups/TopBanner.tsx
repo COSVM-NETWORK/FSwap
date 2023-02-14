@@ -1,20 +1,20 @@
-import { useCallback } from 'react'
+import { rgba } from 'polished'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled, { css, keyframes } from 'styled-components'
 
+import CtaButton from 'components/Announcement/Popups/CtaButton'
+import { AnnouncementPayload, AnnouncementTemplatePopup } from 'components/Announcement/type'
 import Announcement from 'components/Icons/Announcement'
-import { NotificationPayload } from 'components/Popups'
-import CtaButton from 'components/Popups/CtaButton'
 import useTheme from 'hooks/useTheme'
 import { PopupType } from 'state/application/actions'
-import { useActivePopups, useRemovePopup } from 'state/application/hooks'
+import { useActivePopups, useRemoveAllPopupByType } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 const BannerWrapper = styled.div<{ color?: string }>`
   width: 100%;
   padding: 10px 12px 10px 20px;
-  background: ${({ theme, color }) => color ?? theme.warning};
+  background: ${({ theme, color }) => rgba(color ?? theme.warning, 0.7)};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -90,17 +90,16 @@ function TopBanner() {
   // todo check this show or not => change posiion banner top right
   const theme = useTheme()
   const below768 = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const popups = useActivePopups()
-  const popupInfo = popups.find(e => e.popupType === PopupType.TOP_BAR)
+  const { topPopups } = useActivePopups()
+  const popupInfo = topPopups[topPopups.length - 1]
 
-  const removePopup = useRemovePopup()
-  const popKey = popupInfo?.key
-  const hideBanner = useCallback(() => popKey && removePopup(popKey), [popKey, removePopup])
+  const removeAllPopupByType = useRemoveAllPopupByType()
+  const hideBanner = () => removeAllPopupByType(PopupType.TOP_BAR)
 
   if (!popupInfo) return null
-  const {
-    templateBody: { content, actions = [] },
-  } = popupInfo.content as NotificationPayload
+  const { templateBody } = popupInfo.content as AnnouncementPayload
+  const { content, actions = [] } = templateBody as AnnouncementTemplatePopup
+
   const closeBtn = <StyledClose size={24} onClick={hideBanner} />
   const color = theme.warning // todo
   return (

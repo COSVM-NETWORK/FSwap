@@ -7,9 +7,11 @@ import styled, { DefaultTheme, keyframes } from 'styled-components'
 import useTheme from 'hooks/useTheme'
 import { PopupContentSimple, PopupContentTxn, PopupType } from 'state/application/actions'
 import { NotificationType, useRemovePopup } from 'state/application/hooks'
+import { PopupItemType } from 'state/application/reducer'
 
 import SimplePopup from './SimplePopup'
 import TransactionPopup from './TransactionPopup'
+import getPopupTopRightDescriptionByType from './getPopupTopRightDescriptionByType'
 
 const StyledClose = styled(X)`
   margin-left: 10px;
@@ -106,20 +108,12 @@ const WrappedAnimatedFader = ({ removeAfterMs }: { removeAfterMs: number | null 
   return <AnimatedFader style={faderStyle} />
 }
 
-export default function PopupItem({
-  removeAfterMs,
-  content,
-  popKey,
-  popupType,
-}: {
-  removeAfterMs: number | null
-  content: PopupContentTxn | PopupContentSimple
-  popKey: string
-  popupType: PopupType
-}) {
+export default function PopupItem({ popup }: { popup: PopupItemType }) {
+  const { removeAfterMs, popupType, content } = popup
+
   const [isRestartAnimation, setRestartAnimation] = useState(false)
   const removePopup = useRemovePopup()
-  const removeThisPopup = useCallback(() => removePopup(popKey), [popKey, removePopup])
+  const removeThisPopup = useCallback(() => removePopup(popup), [popup, removePopup])
   useEffect(() => {
     if (removeAfterMs === null) return
     const timeout = setTimeout(() => {
@@ -148,6 +142,12 @@ export default function PopupItem({
       const { hash, notiType: _notiType = NotificationType.ERROR } = content as PopupContentTxn
       notiType = _notiType
       popupContent = <TransactionPopup hash={hash} notiType={notiType} />
+      break
+    }
+    case PopupType.TOP_RIGHT: {
+      const { title, summary, type, link } = getPopupTopRightDescriptionByType(popup)
+      notiType = type
+      popupContent = <SimplePopup title={title} type={notiType} summary={summary} link={link} />
       break
     }
   }

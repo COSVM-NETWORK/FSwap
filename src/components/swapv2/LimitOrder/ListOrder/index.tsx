@@ -2,9 +2,11 @@ import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { debounce } from 'lodash'
 import { rgba } from 'polished'
+import { stringify } from 'querystring'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Info, Trash } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -19,6 +21,7 @@ import LIMIT_ORDER_ABI from 'constants/abis/limit_order.json'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useContract } from 'hooks/useContract'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import { NotificationType, useNotify } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
@@ -110,11 +113,12 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
   const { account, chainId, networkInfo } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [curPage, setCurPage] = useState(1)
-  const [orderType, setOrderType] = useState<LimitOrderStatus>(LimitOrderStatus.ACTIVE)
+
+  const { tab, ...qs } = useParsedQueryString<{ tab: LimitOrderStatus }>()
+  const [orderType, setOrderType] = useState<LimitOrderStatus>(tab ?? LimitOrderStatus.ACTIVE)
   const [keyword, setKeyword] = useState('')
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
-
   const limitOrderContract = useContract(getLimitOrderContract(chainId) ?? '', LIMIT_ORDER_ABI)
   const notify = useNotify()
   const { ordersUpdating } = useLimitState()
@@ -139,9 +143,11 @@ export default forwardRef<ListOrderHandle>(function ListLimitOrder(props, ref) {
     setCurPage(1)
   }
 
+  const navigate = useNavigate()
   const onSelectTab = (type: LimitOrderStatus) => {
     setOrderType(type)
     onReset()
+    navigate({ search: stringify(qs) }, { replace: true })
   }
 
   const onChangeKeyword = (val: string) => {

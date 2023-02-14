@@ -1,23 +1,24 @@
 import { Trans } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import styled from 'styled-components'
 
+import CenterPopup from 'components/Announcement/Popups/CenterPopup'
+import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
+import { AnnouncementPayload, AnnouncementTemplateType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
-import CenterPopup from 'components/Popups/CenterPopup'
-import SnippetPopup from 'components/Popups/SnippetPopup'
-import { isPopupExpired } from 'components/Popups/helper'
 import { Z_INDEXS } from 'constants/styles'
-import { PopupContentSimple, PopupContentTxn, PopupType } from 'state/application/actions'
+import { useActiveWeb3React } from 'hooks'
+import { PopupType } from 'state/application/actions'
 import {
-  NotificationType,
   useActivePopups,
   useAddPopup,
   useNotify,
-  useRemoveAllPopup,
+  useRemoveAllPopupByType,
   useToggleNotificationCenter,
 } from 'state/application/hooks'
+import { subscribeAnnouncement, subscribePrivateAnnouncement } from 'utils/firebase'
 
-import PopupItem from './PopupItem'
+import PopupItem from './TopRightPopup'
 
 const FixedPopupColumn = styled.div`
   position: fixed;
@@ -68,59 +69,59 @@ const Overlay = styled.div`
 
 const MAX_NOTIFICATION = 4
 
-export type NotificationCTA = { id: string; title: string; url: string; color: 'warning' | 'success' | 'error' }
-export type NotificationPayload = {
-  templateBody: {
-    title: string
-    content: string
-    actions: NotificationCTA[]
-    imageURL: string
-    popupType: 'central' | 'top_bar'
-  }
-  expiredAt: number
-  createdAt: number
-  startTime: number
-}
-
 export default function Popups() {
-  const popups = useActivePopups()
-  const topRightPopups = popups.filter(e => e.popupType === PopupType.SIMPLE || e.popupType === PopupType.TRANSACTION) // todo con cai top right LO,...
+  const { topRightPopups, centerPopups, snippetPopups } = useActivePopups()
+  const centerPopup = centerPopups[centerPopups.length - 1]
+
+  const { account } = useActiveWeb3React()
 
   const toggleNotificationCenter = useToggleNotificationCenter()
   const notify = useNotify()
   const addPopup = useAddPopup()
 
-  const [bottomLeftPopups, setBottomLeftPopups] = useState<NotificationPayload[]>([])
-  const [centerPopup, setCenterPopup] = useState<NotificationPayload>()
+  const removeAllPopupByType = useRemoveAllPopupByType()
 
-  const clearAllTopRightPopup = useRemoveAllPopup()
-  const clearAllSnippetPopup = () => setBottomLeftPopups([])
-  const clearAllCenterPopup = () => setCenterPopup(undefined)
+  const clearAllTopRightPopup = () => removeAllPopupByType(PopupType.TOP_RIGHT)
+  const clearAllSnippetPopup = () => removeAllPopupByType(PopupType.SNIPPET)
+  const clearAllCenterPopup = () => removeAllPopupByType(PopupType.CENTER)
 
-  useEffect(() => {
-    notify({ title: 'test', type: NotificationType.WARNING }, null) // todo filter expired
-
-    const test = (): NotificationPayload => ({
+  const test = (): AnnouncementPayload =>
+    ({
+      metaMessageId: Math.random(),
+      templateType: AnnouncementTemplateType.BRIDGE,
       templateBody: {
         title: 'string',
         content: 'string',
         actions: [
-          { id: 'test', title: 'string', url: 'string', color: 'success' },
-          // { id: 'test2', title: 'string', url: 'string', color: 'success' },
+          { id: 'test', title: 'string', url: 'string', color: 'primary' },
+          // { id: 'test2', title: 'string', url: 'string', color: 'primary' },
         ],
-        imageURL: 'string',
-        popupType: 'central',
+        thumbnailImageURL: 'string',
+        popupType: PopupType.CENTER,
       },
       expiredAt: Date.now() + 50000000,
       createdAt: Date.now() - 50000000,
       startTime: Date.now() - 50000000,
+    } as any)
+  useEffect(() => {
+    const unsubscribe = subscribeAnnouncement(data => {
+      console.log(123, data)
+      // addPopup(test(), PopupType.TOP_BAR, (test().templateBody as any).title + Math.random(), null) // todo filter expired
+      // addPopup(test(), PopupType.CENTER, (test().templateBody as any).title + Math.random(), null) // todo filter expired
+      // addPopup(test(), PopupType.SNIPPET, (test().templateBody as any).title + Math.random(), null) // todo filter expired
+      // addPopup(test(), PopupType.SNIPPET, (test().templateBody as any).title + Math.random(), null) // todo filter expired
     })
 
-    setBottomLeftPopups([test(), test()].filter(e => !isPopupExpired(e)))
-    setCenterPopup(test()) // todo filter expired
-
-    addPopup(test(), PopupType.TOP_BAR, test().templateBody.title + Math.random(), null) // todo filter expired
-  }, [])
+    const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
+      console.log(123, data)
+      // notify({ title: 'test', type: NotificationType.WARNING }, null) // todo filter expired
+      // addPopup(test(), PopupType.TOP_RIGHT, (test().templateBody as any).title + Math.random(), null) // todo filter expired
+    })
+    return () => {
+      unsubscribe?.()
+      unsubscribePrivate?.()
+    }
+  }, [account])
 
   // todo check mobile, dark mode, check noti thuong hay noti kia
 
@@ -144,19 +145,13 @@ export default function Popups() {
           </ActionWrapper>
 
           {topRightPopups.slice(0, MAX_NOTIFICATION).map(item => (
-            <PopupItem
-              key={item.key}
-              popupType={item.popupType}
-              content={item.content as PopupContentTxn | PopupContentSimple}
-              popKey={item.key}
-              removeAfterMs={item.removeAfterMs}
-            />
+            <PopupItem key={item.key} popup={item} />
           ))}
 
           {totalTopRightPopup >= MAX_NOTIFICATION && <Overlay />}
         </FixedPopupColumn>
       )}
-      {bottomLeftPopups.length > 0 && <SnippetPopup data={bottomLeftPopups} clearAll={clearAllSnippetPopup} />}
+      {snippetPopups.length > 0 && <SnippetPopup data={snippetPopups} clearAll={clearAllSnippetPopup} />}
       {centerPopup && <CenterPopup data={centerPopup} clearAll={clearAllCenterPopup} />}
     </>
   )

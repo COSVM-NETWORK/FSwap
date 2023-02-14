@@ -3,11 +3,12 @@ import { X } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
+import CtaButton from 'components/Announcement/Popups/CtaButton'
+import { AnnouncementPayload, AnnouncementTemplatePopup } from 'components/Announcement/type'
 import Modal from 'components/Modal'
-import { NotificationPayload } from 'components/Popups'
-import CtaButton from 'components/Popups/CtaButton'
 import Row, { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
+import { PopupItemType } from 'state/application/reducer'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
 const Wrapper = styled.div`
@@ -50,13 +51,14 @@ const StyledCtaButton = styled(CtaButton)`
   height: 36px;
   max-width: 100%;
 `
-export default function CenterPopup({ data, clearAll }: { data: NotificationPayload; clearAll: () => void }) {
+export default function CenterPopup({ data, clearAll }: { data: PopupItemType; clearAll: () => void }) {
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const { title = t`Important Announcement!`, content, actions = [] } = data.templateBody
+  const { templateBody = {} } = data.content as AnnouncementPayload
+  const { title = t`Important Announcement!`, content, actions = [] } = templateBody as AnnouncementTemplatePopup
 
   return (
-    <Modal isOpen={true} onDismiss={clearAll} maxWidth={isMobile ? undefined : '800px'}>
+    <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'}>
       <Wrapper>
         <RowBetween align="flex-end">
           <Title>{title}</Title>

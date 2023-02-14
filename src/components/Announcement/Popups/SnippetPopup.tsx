@@ -7,11 +7,12 @@ import styled, { css } from 'styled-components'
 import { Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 
+import CtaButton from 'components/Announcement/Popups/CtaButton'
+import { AnnouncementPayload, AnnouncementTemplatePopup } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
-import { NotificationPayload } from 'components/Popups'
-import CtaButton from 'components/Popups/CtaButton'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
+import { PopupItemType } from 'state/application/reducer'
 import { ExternalLink } from 'theme'
 
 const IMAGE_HEIGHT = '140px'
@@ -121,10 +122,11 @@ function SnippetPopupItem({
   setExpand,
 }: {
   expand: boolean
-  data: NotificationPayload
+  data: PopupItemType
   setExpand: (v: boolean) => void
 }) {
-  const { actions = [], title, content } = data.templateBody ?? {}
+  const { templateBody = {} } = data.content as AnnouncementPayload
+  const { actions = [], title, content } = templateBody as AnnouncementTemplatePopup
   const toggle = () => {
     setExpand(!expand)
   }
@@ -215,14 +217,14 @@ const Close = styled(X)`
     right: calc(12px + ${PADDING_MOBILE});
   `}
 `
-export default function SnippetPopup({ data, clearAll }: { data: NotificationPayload[]; clearAll: () => void }) {
+export default function SnippetPopup({ data, clearAll }: { data: PopupItemType[]; clearAll: () => void }) {
   const theme = useTheme()
   const [expand, setExpand] = useState(false)
 
   return (
     <Wrapper expand={expand}>
       <Swiper slidesPerView={1} navigation={true} pagination={true} loop={true} modules={[Navigation, Pagination]}>
-        {data.map((banner: any, index: number) => (
+        {data.map((banner: PopupItemType, index: number) => (
           <SwiperSlide key={index}>
             <SnippetPopupItem expand={expand} setExpand={setExpand} data={banner} key={index} />
           </SwiperSlide>

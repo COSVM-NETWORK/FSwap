@@ -549,6 +549,7 @@ const LimitOrderForm = function LimitOrderForm({
     if (!account || !chainId) return
     // call when cancel expired/cancelled
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
+      console.log(13, data)
       data?.orders.forEach(order => {
         const findInfo = ordersUpdating.find(e => e.orderId === order.id)
         if (!findInfo?.orderId) return
