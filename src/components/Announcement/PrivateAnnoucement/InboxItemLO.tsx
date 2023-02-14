@@ -13,7 +13,7 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
-import { PrivateAnnouncement, TemplateLimitOrder } from 'components/Announcement/type'
+import { AnnouncementTemplateLimitOrder, PrivateAnnouncement } from 'components/Announcement/type'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { formatStatusLimitOrder } from 'components/swapv2/LimitOrder/ListOrder/OrderItem'
 import { formatAmountOrder, formatRateLimitOrder } from 'components/swapv2/LimitOrder/helpers'
@@ -22,7 +22,7 @@ import { APP_PATHS } from 'constants/index'
 
 function InboxItemBridge({ announcement, onRead }: { announcement: PrivateAnnouncement; onRead: () => void }) {
   const { templateBody } = announcement
-  const order = ((templateBody as TemplateLimitOrder).order ?? {}) as LimitOrder
+  const order = ((templateBody as AnnouncementTemplateLimitOrder).order ?? {}) as LimitOrder
   const {
     status,
     makerAssetSymbol,

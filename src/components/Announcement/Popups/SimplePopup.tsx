@@ -7,10 +7,10 @@ import styled from 'styled-components'
 import IconFailure from 'assets/svg/notification_icon_failure.svg'
 import IconSuccess from 'assets/svg/notification_icon_success.svg'
 import IconWarning from 'assets/svg/notification_icon_warning.svg'
+import { NotificationType } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import { NotificationType } from 'state/application/hooks'
 
 const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;

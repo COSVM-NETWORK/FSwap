@@ -9,6 +9,7 @@ import { Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
 import ArrowRotate from 'components/ArrowRotate'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -31,7 +32,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback from 'hooks/useWrapCallback'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
-import { NotificationType, useNotify } from 'state/application/hooks'
+import { useNotify } from 'state/application/hooks'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -549,7 +550,6 @@ const LimitOrderForm = function LimitOrderForm({
     if (!account || !chainId) return
     // call when cancel expired/cancelled
     const unsubscribeCancelled = subscribeNotificationOrderCancelled(account, chainId, data => {
-      console.log(13, data)
       data?.orders.forEach(order => {
         const findInfo = ordersUpdating.find(e => e.orderId === order.id)
         if (!findInfo?.orderId) return

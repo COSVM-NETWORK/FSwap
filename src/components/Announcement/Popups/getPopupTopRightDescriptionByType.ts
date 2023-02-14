@@ -1,17 +1,21 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
-import { AnnouncementPayload, AnnouncementTemplateType, TemplateBridge } from 'components/Announcement/type'
+import {
+  AnnouncementTemplateBridge,
+  NotificationType,
+  PopupContentAnnouncement,
+  PrivateAnnouncementType,
+} from 'components/Announcement/type'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { MultichainTransfer, MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 import { formatAmountBridge } from 'pages/Bridge/helpers'
-import { NotificationType } from 'state/application/hooks'
 import { PopupItemType } from 'state/application/reducer'
 
 const getDescriptionBridge = (popup: PopupItemType) => {
-  const { templateBody } = popup.content as AnnouncementPayload
-  const { transaction = {} } = templateBody as TemplateBridge
+  const { templateBody } = popup.content as PopupContentAnnouncement
+  const { transaction = {} } = templateBody as AnnouncementTemplateBridge
   const { srcAmount, srcTokenSymbol, status, srcChainId, dstChainId } = transaction as MultichainTransfer
   const isSuccess = status === MultichainTransferStatus.Success
   const fromNetwork = NETWORKS_INFO[Number(srcChainId) as ChainId].name
@@ -35,13 +39,13 @@ type Summary = {
   link: string
 }
 type SummaryMap = {
-  [type in AnnouncementTemplateType]: (popup: PopupItemType) => Summary
+  [type in PrivateAnnouncementType]: (popup: PopupItemType) => Summary
 }
 const MAP_DESCRIPTION: Partial<SummaryMap> = {
-  [AnnouncementTemplateType.BRIDGE]: getDescriptionBridge,
+  [PrivateAnnouncementType.BRIDGE]: getDescriptionBridge,
 }
 
 export default function getPopupTopRightDescriptionByType(popup: PopupItemType) {
-  const { templateType } = popup.content as AnnouncementPayload
+  const { templateType } = popup.content as PopupContentAnnouncement
   return (MAP_DESCRIPTION[templateType]?.(popup) ?? {}) as Summary
 }

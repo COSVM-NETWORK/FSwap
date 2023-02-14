@@ -16,7 +16,7 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
-import { PrivateAnnouncement, TemplateBridge } from 'components/Announcement/type'
+import { AnnouncementTemplateBridge, PrivateAnnouncement } from 'components/Announcement/type'
 import { NetworkLogo } from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -31,7 +31,7 @@ const NetWorkRow = styled.div`
 
 function InboxItemBridge({ announcement, onRead }: { announcement: PrivateAnnouncement; onRead: () => void }) {
   const { templateBody } = announcement
-  const { transaction = {} } = templateBody as TemplateBridge
+  const { transaction = {} } = templateBody as AnnouncementTemplateBridge
   const { status, srcTokenSymbol, srcAmount, dstChainId, srcChainId } = transaction as MultichainTransfer
   const isRead = Math.random() < 0.5
   const isSuccess = status === MultichainTransferStatus.Success

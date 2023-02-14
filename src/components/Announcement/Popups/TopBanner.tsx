@@ -4,10 +4,9 @@ import { useMedia } from 'react-use'
 import styled, { css, keyframes } from 'styled-components'
 
 import CtaButton from 'components/Announcement/Popups/CtaButton'
-import { AnnouncementPayload, AnnouncementTemplatePopup } from 'components/Announcement/type'
+import { AnnouncementTemplatePopup, PopupContentAnnouncement, PopupType } from 'components/Announcement/type'
 import Announcement from 'components/Icons/Announcement'
 import useTheme from 'hooks/useTheme'
-import { PopupType } from 'state/application/actions'
 import { useActivePopups, useRemoveAllPopupByType } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 
@@ -87,7 +86,6 @@ const StyledLink = styled(ExternalLink)`
   }
 `
 function TopBanner() {
-  // todo check this show or not => change posiion banner top right
   const theme = useTheme()
   const below768 = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { topPopups } = useActivePopups()
@@ -97,13 +95,11 @@ function TopBanner() {
   const hideBanner = () => removeAllPopupByType(PopupType.TOP_BAR)
 
   if (!popupInfo) return null
-  const { templateBody } = popupInfo.content as AnnouncementPayload
-  const { content, actions = [] } = templateBody as AnnouncementTemplatePopup
-
+  const { templateBody } = popupInfo.content as PopupContentAnnouncement
+  const { content, ctas = [], type } = templateBody as AnnouncementTemplatePopup
   const closeBtn = <StyledClose size={24} onClick={hideBanner} />
-  const color = theme.warning // todo
   return (
-    <BannerWrapper color={color}>
+    <BannerWrapper color={type === 'NORMAL' ? theme.apr : theme.warning}>
       {!below768 && <div />}
       <Content>
         {!below768 && <Announcement />}
@@ -112,8 +108,8 @@ function TopBanner() {
         </TextWrapper>
         {below768 && closeBtn}
       </Content>
-      <StyledLink href={actions[0]?.url}>
-        <StyledCtaButton data={actions[0]} />
+      <StyledLink href={ctas[0]?.url}>
+        <StyledCtaButton data={ctas[0]} color="gray" onClick={hideBanner} />
       </StyledLink>
       {!below768 && closeBtn}
     </BannerWrapper>

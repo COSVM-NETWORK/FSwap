@@ -7,7 +7,13 @@ import { useDeepCompareEffect } from 'react-use'
 
 import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
 import { isPopupExpired, useAckAnnouncement } from 'components/Announcement/helper'
-import { AnnouncementPayload } from 'components/Announcement/type'
+import {
+  PopupContent,
+  PopupContentAnnouncement,
+  PopupContentSimple,
+  PopupContentTxn,
+  PopupType,
+} from 'components/Announcement/type'
 import { OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from 'constants/index'
 import { EVMNetworkInfo } from 'constants/networks/type'
 import { KNC } from 'constants/tokens'
@@ -20,10 +26,6 @@ import { getBlockFromTimestamp, getPercentChange } from 'utils'
 
 import {
   ApplicationModal,
-  PopupContent,
-  PopupContentSimple,
-  PopupContentTxn,
-  PopupType,
   addPopup,
   closeModal,
   removePopup,
@@ -180,11 +182,6 @@ export function useAddPopup(): (
   )
 }
 
-export enum NotificationType {
-  SUCCESS,
-  ERROR,
-  WARNING,
-}
 // simple notify with text and description
 export const useNotify = () => {
   const addPopup = useAddPopup()
@@ -216,7 +213,7 @@ export function useRemovePopup() {
     (popup: PopupItemType) => {
       const { key, popupType, content } = popup
       if ([PopupType.CENTER, PopupType.SNIPPET, PopupType.TOP_RIGHT, PopupType.TOP_BAR].includes(popupType)) {
-        ackAnnouncement((content as AnnouncementPayload).metaMessageId)
+        ackAnnouncement((content as PopupContentAnnouncement).metaMessageId)
       }
       dispatch(removePopup({ key }))
     },
@@ -251,25 +248,28 @@ export function useRemoveAllPopupByType() {
 
 // get the list of active popups
 export function useActivePopups() {
-  const list = useSelector((state: AppState) => state.application.popupList)
+  const popups = useSelector((state: AppState) => state.application.popupList)
   const { announcementsAckMap } = useAckAnnouncement()
 
   return useMemo(() => {
-    const popups = list.filter(item => item.show)
-
     const topRightPopups = popups.filter(e =>
       [PopupType.SIMPLE, PopupType.TOP_RIGHT, PopupType.TRANSACTION].includes(e.popupType),
-    ) // todo filter all, phan biet LO vs normal
+    )
 
     const topPopups = popups.filter(
-      e => e.popupType === PopupType.TOP_BAR && !isPopupExpired(e.content as AnnouncementPayload, announcementsAckMap),
+      e =>
+        e.popupType === PopupType.TOP_BAR &&
+        !isPopupExpired(e.content as PopupContentAnnouncement, announcementsAckMap),
     )
     const snippetPopups = popups.filter(
-      e => e.popupType === PopupType.SNIPPET && !isPopupExpired(e.content as AnnouncementPayload, announcementsAckMap),
+      e =>
+        e.popupType === PopupType.SNIPPET &&
+        !isPopupExpired(e.content as PopupContentAnnouncement, announcementsAckMap),
     )
 
     const centerPopups = popups.filter(
-      e => e.popupType === PopupType.CENTER && !isPopupExpired(e.content as AnnouncementPayload, announcementsAckMap),
+      e =>
+        e.popupType === PopupType.CENTER && !isPopupExpired(e.content as PopupContentAnnouncement, announcementsAckMap),
     )
     return {
       topPopups,
@@ -277,7 +277,7 @@ export function useActivePopups() {
       topRightPopups,
       snippetPopups,
     }
-  }, [list, announcementsAckMap])
+  }, [popups, announcementsAckMap])
 }
 
 /**

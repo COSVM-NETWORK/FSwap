@@ -1,14 +1,18 @@
 import { Trans } from '@lingui/macro'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 
 import CenterPopup from 'components/Announcement/Popups/CenterPopup'
 import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
-import { AnnouncementPayload, AnnouncementTemplateType } from 'components/Announcement/type'
+import {
+  NotificationType,
+  PopupContentAnnouncement,
+  PopupType,
+  PrivateAnnouncementType,
+} from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
-import { PopupType } from 'state/application/actions'
 import {
   useActivePopups,
   useAddPopup,
@@ -20,19 +24,22 @@ import { subscribeAnnouncement, subscribePrivateAnnouncement } from 'utils/fireb
 
 import PopupItem from './TopRightPopup'
 
-const FixedPopupColumn = styled.div`
+const FixedPopupColumn = styled.div<{ hasTopbarPopup: boolean }>`
   position: fixed;
-  top: 108px;
+  top: ${({ hasTopbarPopup }) => (hasTopbarPopup ? '156px' : '108px')};
   right: 1rem;
   z-index: ${Z_INDEXS.POPUP_NOTIFICATION};
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme, hasTopbarPopup }) => theme.mediaWidth.upToMedium`
     left: 0;
     right: 0;
-    top: 80px;
+    top: ${hasTopbarPopup ? '170px' : '110px'};
     align-items: center;
+  `};
+  ${({ theme, hasTopbarPopup }) => theme.mediaWidth.upToSmall`
+    top: ${hasTopbarPopup ? '170px' : '70px'};
   `};
 `
 
@@ -56,23 +63,12 @@ const ActionButton = styled(ButtonEmpty)`
   font-size: 10px;
 `
 
-const Overlay = styled.div`
-  display: flex;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: red;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40.1%, rgba(0, 0, 0, 0.8) 100%);
-`
-
 const MAX_NOTIFICATION = 4
 
 export default function Popups() {
-  const { topRightPopups, centerPopups, snippetPopups } = useActivePopups()
+  const { topRightPopups, centerPopups, snippetPopups, topPopups } = useActivePopups()
   const centerPopup = centerPopups[centerPopups.length - 1]
-
+  console.log(topPopups)
   const { account } = useActiveWeb3React()
 
   const toggleNotificationCenter = useToggleNotificationCenter()
@@ -85,37 +81,46 @@ export default function Popups() {
   const clearAllSnippetPopup = () => removeAllPopupByType(PopupType.SNIPPET)
   const clearAllCenterPopup = () => removeAllPopupByType(PopupType.CENTER)
 
-  const test = (): AnnouncementPayload =>
+  const test = (): PopupContentAnnouncement =>
     ({
-      metaMessageId: Math.random(),
-      templateType: AnnouncementTemplateType.BRIDGE,
+      metaMessageId: Math.random() + '',
+      templateType: PrivateAnnouncementType.BRIDGE,
       templateBody: {
         title: 'string',
         content: 'string',
-        actions: [
-          { id: 'test', title: 'string', url: 'string', color: 'primary' },
-          // { id: 'test2', title: 'string', url: 'string', color: 'primary' },
-        ],
+        ctas: [{ name: 'string', url: 'string' }],
         thumbnailImageURL: 'string',
         popupType: PopupType.CENTER,
+        type: 'CRITICAL',
       },
       expiredAt: Date.now() + 50000000,
       createdAt: Date.now() - 50000000,
       startTime: Date.now() - 50000000,
     } as any)
+
+  const isInit = useRef(false)
   useEffect(() => {
     const unsubscribe = subscribeAnnouncement(data => {
-      console.log(123, data)
-      // addPopup(test(), PopupType.TOP_BAR, (test().templateBody as any).title + Math.random(), null) // todo filter expired
-      // addPopup(test(), PopupType.CENTER, (test().templateBody as any).title + Math.random(), null) // todo filter expired
-      // addPopup(test(), PopupType.SNIPPET, (test().templateBody as any).title + Math.random(), null) // todo filter expired
-      // addPopup(test(), PopupType.SNIPPET, (test().templateBody as any).title + Math.random(), null) // todo filter expired
+      setTimeout(() => {
+        if (!isInit.current) {
+          // only show when the first visit app
+          addPopup(test(), PopupType.CENTER, test().metaMessageId, null)
+        }
+        addPopup(test(), PopupType.TOP_BAR, test().metaMessageId, null)
+        addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
+        addPopup(test(), PopupType.SNIPPET, test().metaMessageId, null)
+        isInit.current = true
+      }, 2000)
     })
 
     const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
-      console.log(123, data)
-      // notify({ title: 'test', type: NotificationType.WARNING }, null) // todo filter expired
-      // addPopup(test(), PopupType.TOP_RIGHT, (test().templateBody as any).title + Math.random(), null) // todo filter expired
+      setTimeout(() => {
+        // notify({ title: 'test', type: NotificationType.WARNING }, null)
+        addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
+        addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
+        addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
+        addPopup(test(), PopupType.TOP_RIGHT, test().metaMessageId, null)
+      }, 1000)
     })
     return () => {
       unsubscribe?.()
@@ -123,14 +128,12 @@ export default function Popups() {
     }
   }, [account])
 
-  // todo check mobile, dark mode, check noti thuong hay noti kia
-
   const totalTopRightPopup = topRightPopups.length
-  // todo xem may thong baso chung chung slice roi sao nua ???
+
   return (
     <>
       {topRightPopups.length > 0 && (
-        <FixedPopupColumn>
+        <FixedPopupColumn hasTopbarPopup={topPopups.length !== 0}>
           <ActionWrapper>
             {totalTopRightPopup >= MAX_NOTIFICATION && (
               <ActionButton onClick={toggleNotificationCenter}>
@@ -144,11 +147,9 @@ export default function Popups() {
             )}
           </ActionWrapper>
 
-          {topRightPopups.slice(0, MAX_NOTIFICATION).map(item => (
-            <PopupItem key={item.key} popup={item} />
+          {topRightPopups.slice(0, MAX_NOTIFICATION).map((item, i) => (
+            <PopupItem key={item.key} popup={item} hasOverlay={i === MAX_NOTIFICATION - 1} />
           ))}
-
-          {totalTopRightPopup >= MAX_NOTIFICATION && <Overlay />}
         </FixedPopupColumn>
       )}
       {snippetPopups.length > 0 && <SnippetPopup data={snippetPopups} clearAll={clearAllSnippetPopup} />}

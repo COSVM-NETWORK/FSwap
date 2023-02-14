@@ -1,32 +1,31 @@
+import { ReactNode } from 'react'
+
 import { LimitOrder } from 'components/swapv2/LimitOrder/type'
 import { MultichainTransfer } from 'hooks/bridge/useGetBridgeTransfers'
-import { PopupType } from 'state/application/actions'
-
-export enum AnnouncementTemplateType {
-  LIMIT_ORDER = 'LimitOrderFilled',
-  BRIDGE = 'Bridge',
-  TRENDING_SOON_TOKEN = 'TrendingSoonTokens',
-}
-
-type Color = 'primary' | 'warning' | 'error'
 
 export type Announcement = {
   isRead: boolean
   id: string
-  title: string
+  name: string
   content: string
   startAt: number
   actionURL: string
 }
 
-export type PrivateAnnouncement = {
-  id: number
-  templateType: AnnouncementTemplateType
-  templateId: number
-  templateBody: Template
+export enum PrivateAnnouncementType {
+  LIMIT_ORDER = 'LimitOrderFilled',
+  BRIDGE = 'Bridge',
+  TRENDING_SOON_TOKEN = 'TrendingSoonTokens',
 }
 
-export type AnnouncementCTA = { id: string; title: string; url: string; color: Color }
+export type PrivateAnnouncement = {
+  id: number
+  templateType: PrivateAnnouncementType
+  templateId: number
+  templateBody: AnnouncementTemplate
+}
+
+export type AnnouncementCTA = { name: string; url: string }
 
 export type TrueSightToken = {
   tokenSymbol: string
@@ -36,30 +35,65 @@ export type TrueSightToken = {
   tokenAddress: string
 }
 
+// for private announcement
+export type AnnouncementTemplateLimitOrder = { order: LimitOrder }
+export type AnnouncementTemplateBridge = { transaction: MultichainTransfer }
+export type AnnouncementTemplateTrendingSoon = { tokens: TrueSightToken[] }
+
+// for general announcement
 export type AnnouncementTemplatePopup = {
-  title: string
+  name: string
   content: string
-  actions: AnnouncementCTA[]
+  ctas: AnnouncementCTA[]
   thumbnailImageURL: string
-  backgroundColor: Color
+  type: 'NORMAL' | 'CRITICAL'
   startAt: number
   endAt: number
 }
-// todo rename all
 
-export type TemplateLimitOrder = { order: LimitOrder }
-export type TemplateBridge = { transaction: MultichainTransfer }
-export type TemplateTrendingSoon = { tokens: TrueSightToken[] }
-
-type Template = (TemplateLimitOrder | TemplateBridge | TemplateTrendingSoon | AnnouncementTemplatePopup) & {
+type AnnouncementTemplate = (
+  | AnnouncementTemplateLimitOrder
+  | AnnouncementTemplateBridge
+  | AnnouncementTemplateTrendingSoon
+  | AnnouncementTemplatePopup
+) & {
   popupType: PopupType
 }
 
-export type AnnouncementPayload = {
-  metaMessageId: number
-  templateType: AnnouncementTemplateType
-  templateBody: Template
+export enum NotificationType {
+  SUCCESS,
+  ERROR,
+  WARNING,
+}
+
+export enum PopupType {
+  TRANSACTION, // top right
+  SIMPLE, // top right
+  TOP_RIGHT = 'top-right', // popup noti from server: limit order, bridge, ...
+  TOP_BAR = 'top-bar',
+  SNIPPET = 'snippet', // bottom left
+  CENTER = 'central',
+}
+
+export type PopupContentTxn = {
+  hash: string
+  type: NotificationType
+}
+
+export type PopupContentSimple = {
+  title: string
+  summary?: ReactNode
+  icon?: ReactNode
+  type: NotificationType
+}
+
+export type PopupContentAnnouncement = {
+  metaMessageId: string
+  templateType: PrivateAnnouncementType
+  templateBody: AnnouncementTemplate
   expiredAt: number
   createdAt: number
   startTime: number
 }
+
+export type PopupContent = PopupContentTxn | PopupContentSimple | PopupContentAnnouncement

@@ -4,7 +4,7 @@ import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import CtaButton from 'components/Announcement/Popups/CtaButton'
-import { AnnouncementPayload, AnnouncementTemplatePopup } from 'components/Announcement/type'
+import { AnnouncementTemplatePopup, PopupContentAnnouncement } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
@@ -54,21 +54,21 @@ const StyledCtaButton = styled(CtaButton)`
 export default function CenterPopup({ data, clearAll }: { data: PopupItemType; clearAll: () => void }) {
   const theme = useTheme()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const { templateBody = {} } = data.content as AnnouncementPayload
-  const { title = t`Important Announcement!`, content, actions = [] } = templateBody as AnnouncementTemplatePopup
+  const { templateBody = {} } = data.content as PopupContentAnnouncement
+  const { name = t`Important Announcement!`, content, ctas = [] } = templateBody as AnnouncementTemplatePopup
 
   return (
     <Modal isOpen={true} maxWidth={isMobile ? undefined : '800px'}>
       <Wrapper>
         <RowBetween align="flex-end">
-          <Title>{title}</Title>
+          <Title>{name}</Title>
           <X cursor={'pointer'} color={theme.subText} onClick={clearAll} />
         </RowBetween>
         <div style={{ fontSize: 14, lineHeight: '20px' }}>{content}</div>
         <ButtonWrapper justify="center">
-          {actions.map(item => (
+          {ctas.map(item => (
             <StyledLink href={item.url} key={item.url}>
-              <StyledCtaButton data={item} />
+              <StyledCtaButton data={item} color="primary" onClick={clearAll} />
             </StyledLink>
           ))}
         </ButtonWrapper>

@@ -10,7 +10,7 @@ import {
   RowItem,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
-import { PrivateAnnouncement, TemplateTrendingSoon, TrueSightToken } from 'components/Announcement/type'
+import { AnnouncementTemplateTrendingSoon, PrivateAnnouncement, TrueSightToken } from 'components/Announcement/type'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { APP_PATHS } from 'constants/index'
@@ -19,8 +19,7 @@ const getTokenDisplayText = (token: TrueSightToken) => `${token.tokenSymbol} $${
 
 function InboxItemBridge({ announcement, onRead }: { announcement: PrivateAnnouncement; onRead: () => void }) {
   const { templateBody } = announcement
-  const [token1, token2, token3] = ((templateBody as TemplateTrendingSoon).tokens ?? []) as TrueSightToken[]
-  console.log(token1, token2, token3)
+  const [token1, token2, token3] = ((templateBody as AnnouncementTemplateTrendingSoon).tokens ?? []) as TrueSightToken[]
   const isRead = Math.random() < 0.5
   const navigate = useNavigate()
   const onClick = () => {

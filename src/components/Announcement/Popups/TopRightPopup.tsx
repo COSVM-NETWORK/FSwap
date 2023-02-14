@@ -1,12 +1,13 @@
+import { rgba } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { animated, useSpring } from 'react-spring'
 import { Flex } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
+import { NotificationType, PopupContentSimple, PopupContentTxn, PopupType } from 'components/Announcement/type'
 import useTheme from 'hooks/useTheme'
-import { PopupContentSimple, PopupContentTxn, PopupType } from 'state/application/actions'
-import { NotificationType, useRemovePopup } from 'state/application/hooks'
+import { useRemovePopup } from 'state/application/hooks'
 import { PopupItemType } from 'state/application/reducer'
 
 import SimplePopup from './SimplePopup'
@@ -108,7 +109,21 @@ const WrappedAnimatedFader = ({ removeAfterMs }: { removeAfterMs: number | null 
   return <AnimatedFader style={faderStyle} />
 }
 
-export default function PopupItem({ popup }: { popup: PopupItemType }) {
+const Overlay = styled.div`
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: ${({ theme }) =>
+    `linear-gradient(180deg, ${rgba(theme.darkMode ? theme.black : theme.white, 0)} 40.1%, ${rgba(
+      theme.darkMode ? theme.black : theme.white,
+      0.8,
+    )} 100%)`};
+`
+
+export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType; hasOverlay: boolean }) {
   const { removeAfterMs, popupType, content } = popup
 
   const [isRestartAnimation, setRestartAnimation] = useState(false)
@@ -139,8 +154,8 @@ export default function PopupItem({ popup }: { popup: PopupItemType }) {
       break
     }
     case PopupType.TRANSACTION: {
-      const { hash, notiType: _notiType = NotificationType.ERROR } = content as PopupContentTxn
-      notiType = _notiType
+      const { hash, type = NotificationType.ERROR } = content as PopupContentTxn
+      notiType = type
       popupContent = <TransactionPopup hash={hash} notiType={notiType} />
       break
     }
@@ -163,6 +178,7 @@ export default function PopupItem({ popup }: { popup: PopupItemType }) {
         </Flex>
         {removeAfterMs && <WrappedAnimatedFader removeAfterMs={removeAfterMs} />}
       </Popup>
+      {hasOverlay && <Overlay />}
     </PopupWrapper>
   )
 }

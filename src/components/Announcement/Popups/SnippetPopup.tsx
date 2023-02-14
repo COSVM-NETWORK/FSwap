@@ -8,7 +8,7 @@ import { Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 
 import CtaButton from 'components/Announcement/Popups/CtaButton'
-import { AnnouncementPayload, AnnouncementTemplatePopup } from 'components/Announcement/type'
+import { AnnouncementTemplatePopup, PopupContentAnnouncement } from 'components/Announcement/type'
 import { AutoColumn } from 'components/Column'
 import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
@@ -125,8 +125,8 @@ function SnippetPopupItem({
   data: PopupItemType
   setExpand: (v: boolean) => void
 }) {
-  const { templateBody = {} } = data.content as AnnouncementPayload
-  const { actions = [], title, content } = templateBody as AnnouncementTemplatePopup
+  const { templateBody = {} } = data.content as PopupContentAnnouncement
+  const { ctas = [], name, content } = templateBody as AnnouncementTemplatePopup
   const toggle = () => {
     setExpand(!expand)
   }
@@ -135,14 +135,14 @@ function SnippetPopupItem({
     <ItemWrapper expand={expand}>
       <Image expand={expand} src="https://media.vneconomy.vn/images/upload/2022/07/11/gettyimages-1207206237.jpg" />
       <ContentColumn expand={expand}>
-        <Title expand={expand}>{title}</Title>
+        <Title expand={expand}>{name}</Title>
         <Desc expand={expand}>{content}</Desc>
         <Flex
           alignItems="flex-end"
           style={{ position: 'relative', justifyContent: expand ? 'center' : 'space-between' }}
         >
-          <StyledLink href={actions[0]?.url}>
-            <StyledCtaButton data={actions[0]} />
+          <StyledLink href={ctas[0]?.url}>
+            <StyledCtaButton data={ctas[0]} color="primary" />
           </StyledLink>
           <SeeMore onClick={toggle} expand={expand}>
             <ChevronsUp size={16} />

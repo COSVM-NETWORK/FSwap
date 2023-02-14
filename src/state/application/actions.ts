@@ -1,33 +1,7 @@
 import { createAction } from '@reduxjs/toolkit'
-import { ReactNode } from 'react'
 
-import { AnnouncementPayload } from 'components/Announcement/type'
+import { PopupContent, PopupType } from 'components/Announcement/type'
 import { Topic } from 'hooks/useNotification'
-
-import { NotificationType } from './hooks'
-
-export type PopupContentTxn = {
-  hash: string
-  notiType: NotificationType
-}
-
-export type PopupContentSimple = {
-  title: string
-  summary?: ReactNode
-  icon?: ReactNode
-  type: NotificationType
-}
-
-export enum PopupType {
-  TRANSACTION, // top right
-  SIMPLE, // top right
-  TOP_RIGHT = 'top-right',
-  TOP_BAR = 'top-bar',
-  SNIPPET = 'snippet', // bottom left
-  CENTER = 'central',
-}
-
-export type PopupContent = PopupContentTxn | PopupContentSimple | AnnouncementPayload // todo danh refactor reducer
 
 export enum ApplicationModal {
   NETWORK,
