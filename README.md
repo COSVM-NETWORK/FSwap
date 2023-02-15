@@ -1,14 +1,14 @@
-# KyberSwap Interface
+# FSwap Interface
 
-An open source interface for KyberSwap -- a protocol for decentralized exchange.
+An open source interface for FSwap -- a protocol for decentralized exchange.
 Forked from [Uniswap/uniswap-interface](https://github.com/Uniswap/uniswap-interface)
 
-- Website: [kyberswap.com](https://kyberswap.com/)
-- Whitepaper: [Link](https://files.kyber.network/DMM-Feb21.pdf)
+- Website: [fswap.com](https://fswap.com/)
+- Whitepaper: [Link](https://files.fnbchain.org/FNB-Feb23.pdf)
 
-## Accessing the KyberSwap Interface
+## Accessing the FSwap Interface
 
-To access the KyberSwap Interface, visit [kyberswap.com](https://kyberswap.com/)
+To access the FSwap Interface, visit [fswap.com](https://fswap.com/)
 
 ## Development
 
