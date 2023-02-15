@@ -84,6 +84,9 @@ const StyledLink = styled(ExternalLink)`
   &:hover {
     text-decoration: none;
   }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
 `
 function TopBanner() {
   const theme = useTheme()
@@ -97,7 +100,6 @@ function TopBanner() {
   if (!popupInfo) return null
   const { templateBody } = popupInfo.content as PopupContentAnnouncement
   const { content, ctas = [], type } = templateBody as AnnouncementTemplatePopup
-  const closeBtn = <StyledClose size={24} onClick={hideBanner} />
   return (
     <BannerWrapper color={type === 'NORMAL' ? theme.apr : theme.warning}>
       {!isMobile && <div />}
@@ -106,12 +108,12 @@ function TopBanner() {
         <TextWrapper>
           <TextContent>{content}</TextContent>
         </TextWrapper>
-        {isMobile && closeBtn}
+        {isMobile && <StyledClose size={24} onClick={hideBanner} />}
       </Content>
       <StyledLink href={ctas[0]?.url}>
         <StyledCtaButton data={ctas[0]} color="gray" onClick={hideBanner} />
       </StyledLink>
-      {!isMobile && closeBtn}
+      {!isMobile && <StyledClose size={24} onClick={hideBanner} style={{ marginLeft: 8 }} />}
     </BannerWrapper>
   )
 }
