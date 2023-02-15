@@ -22,11 +22,11 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 70vh;
+  height: 70vh;
   padding-top: 20px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
-    max-height: unset;
+    height: unset;
   `};
 `
 const Container = styled.div`
@@ -188,7 +188,7 @@ export default function AnnouncementView({
           )}
         </ListAnnouncement>
       ) : (
-        <Column style={{ alignItems: 'center', margin: '24px 0px' }} gap="8px">
+        <Column style={{ alignItems: 'center', margin: '24px 0px 32px 0px' }} gap="8px">
           <Info color={theme.subText} size={26} />
           <Text color={theme.subText} textAlign="center">
             {!account && isMyInboxTab ? (

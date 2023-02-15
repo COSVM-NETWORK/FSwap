@@ -4,12 +4,7 @@ import styled from 'styled-components'
 
 import CenterPopup from 'components/Announcement/Popups/CenterPopup'
 import SnippetPopup from 'components/Announcement/Popups/SnippetPopup'
-import {
-  NotificationType,
-  PopupContentAnnouncement,
-  PopupType,
-  PrivateAnnouncementType,
-} from 'components/Announcement/type'
+import { PopupContentAnnouncement, PopupType, PrivateAnnouncementType } from 'components/Announcement/type'
 import { ButtonEmpty } from 'components/Button'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
@@ -86,8 +81,9 @@ export default function Popups() {
       metaMessageId: Math.random() + '',
       templateType: PrivateAnnouncementType.BRIDGE,
       templateBody: {
-        title: 'string',
-        content: 'string',
+        name: 'New campaign hereeee',
+        content:
+          'New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee New campaign hereeee',
         ctas: [{ name: 'string', url: 'string' }],
         thumbnailImageURL: 'string',
         popupType: PopupType.CENTER,

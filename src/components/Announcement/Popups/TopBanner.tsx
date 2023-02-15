@@ -87,7 +87,7 @@ const StyledLink = styled(ExternalLink)`
 `
 function TopBanner() {
   const theme = useTheme()
-  const below768 = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { topPopups } = useActivePopups()
   const popupInfo = topPopups[topPopups.length - 1]
 
@@ -100,18 +100,18 @@ function TopBanner() {
   const closeBtn = <StyledClose size={24} onClick={hideBanner} />
   return (
     <BannerWrapper color={type === 'NORMAL' ? theme.apr : theme.warning}>
-      {!below768 && <div />}
+      {!isMobile && <div />}
       <Content>
-        {!below768 && <Announcement />}
+        {!isMobile && <Announcement />}
         <TextWrapper>
           <TextContent>{content}</TextContent>
         </TextWrapper>
-        {below768 && closeBtn}
+        {isMobile && closeBtn}
       </Content>
       <StyledLink href={ctas[0]?.url}>
         <StyledCtaButton data={ctas[0]} color="gray" onClick={hideBanner} />
       </StyledLink>
-      {!below768 && closeBtn}
+      {!isMobile && closeBtn}
     </BannerWrapper>
   )
 }

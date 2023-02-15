@@ -74,8 +74,12 @@ export default function AnnouncementComponent() {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { useGetAnnouncementsQuery, useGetPrivateAnnouncementsQuery } = AnnouncementApi
-  const { data: announcements = [], refetch: refetchAnnouncement } = useGetAnnouncementsQuery()
-  const { data: inboxes = [], refetch: refetchPrivateAnnouncement } = useGetPrivateAnnouncementsQuery({ account })
+  const { data: announcements = [], refetch: refetchAnnouncement } = useGetAnnouncementsQuery({ page: 1, pageSize: 20 })
+  const { data: inboxes = [], refetch: refetchPrivateAnnouncement } = useGetPrivateAnnouncementsQuery({
+    account,
+    page: 1,
+    pageSize: 20,
+  })
 
   const numberOfUnreadInbox = inboxes.length // todo filter
   const numberOfUnreadGeneral = announcements.length

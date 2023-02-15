@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { PrivateAnnouncementType } from 'components/Announcement/type'
+import { NOTIFICATION_API } from 'constants/env'
 
 const transformResponse = (data: any) => {
   return Array.from(
@@ -88,24 +89,27 @@ const transformResponse2 = (data: any) => {
   }))
 }
 
+type Params = {
+  page: number
+  pageSize: number
+  account?: string
+}
 const AnnouncementApi = createApi({
   reducerPath: 'announcementApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'https://limit-order.dev.kyberengineering.io/read-ks/api',
-  }),
+  baseQuery: fetchBaseQuery({ baseUrl: NOTIFICATION_API }),
   endpoints: builder => ({
-    getAnnouncements: builder.query<any, void>({
+    getAnnouncements: builder.query<any, Params>({
       // todo any
-      query: () => ({
-        url: '/v1/orders',
-        params: { chainId: 5, maker: '0xf14de383fe1f5eca59dbc33a7d7ab527ad7c8c94', status: 'active' },
+      query: params => ({
+        url: `/v1/messages/announcements`,
+        params,
       }),
       transformResponse,
     }),
-    getPrivateAnnouncements: builder.query<any, any>({
-      query: params => ({
-        url: '/v1/orders',
-        params: { chainId: 5, maker: '0xf14de383fe1f5eca59dbc33a7d7ab527ad7c8c94', status: 'active' },
+    getPrivateAnnouncements: builder.query<any, Params>({
+      query: ({ account, ...params }) => ({
+        url: `/v1/users/${account}/notifications`,
+        params,
       }),
       transformResponse: transformResponse2,
     }),
